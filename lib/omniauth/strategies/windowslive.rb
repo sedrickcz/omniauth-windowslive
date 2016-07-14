@@ -7,7 +7,7 @@ module OmniAuth
   module Strategies
     class Windowslive < OmniAuth::Strategies::OAuth2
       # Scopes and permissions => http://msdn.microsoft.com/en-us/library/hh243646.aspx
-      DEFAULT_SCOPE = 'wl.basic,wl.emails,wl.photos'
+      DEFAULT_SCOPE = 'bingads.manage'
 
       option :client_options, {
         site:          'https://login.live.com',
@@ -19,28 +19,38 @@ module OmniAuth
         response_type: 'code'
       }
 
+      option :token_params, {
+        grant_type: 'authorization_code'
+      }
+
       option :name, 'windowslive'
 
-      uid { raw_info['id'] }
+      option :uid_field, :user_id
+
+      uid do
+        request.params[options.uid_field.to_s]
+      end
 
       # http://msdn.microsoft.com/en-us/library/hh243648.aspx
       info do
         {
-          'id'           => raw_info['id'],
-          'emails'       => emails_parser,
-          'name'         => raw_info['name'],
-          'first_name'   => raw_info['first_name'],
-          'last_name'    => raw_info['last_name'],
-          'gender'       => raw_info['gender'],
-          'link'         => raw_info['link'],
-          'locale'       => raw_info['locale'],
-          'updated_time' => raw_info['updated_time']
+          'intentionally left blank' => true
+          #'id'           => raw_info['id'],
+          #'emails'       => emails_parser,
+          #'name'         => raw_info['name'],
+          #'first_name'   => raw_info['first_name'],
+          #'last_name'    => raw_info['last_name'],
+          #'gender'       => raw_info['gender'],
+          #'link'         => raw_info['link'],
+          #'locale'       => raw_info['locale'],
+          #'updated_time' => raw_info['updated_time']
         }
       end
 
       extra do
         {
-          'raw_info' => raw_info
+          'intentionally left blank' => true
+          #'raw_info' => raw_info
         }
       end
 
@@ -48,6 +58,10 @@ module OmniAuth
       def raw_info
         request = 'https://apis.live.net/v5.0/me'
         @raw_info ||= MultiJson.decode(access_token.get(request).body)
+      end
+
+      def callback_url
+        options[:redirect_uri] || (full_host + script_name + callback_path)
       end
 
       private

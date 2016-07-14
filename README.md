@@ -12,6 +12,8 @@
 
 This gem contains the unofficial WindowsLive strategy for OmniAuth.
 
+Dirty hack to make it work with bing ads, I am only interested in getting a access- and refresh token to pull ads reports.
+
 ## Basic Usage
 
 	use OmniAuth::Builder do
